@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Резонанс: Энергия Смысла</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-deep: #0A1128;
+    --bg-mid: #1B2A4E;
+    --cyan: #00B4D8;
+    --orange: #FF6B35;
+    --violet: #7209B7;
+    --text: #E8F1F8;
+    --muted: #8B9BB4;
+    --green: #4ADE80;
+    --yellow: #FACC15;
+    --red: #F87171;
+  }
+  html, body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { font-family: 'Montserrat', 'Inter', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
+  button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+
+  .screen {
+    position: fixed; inset: 0;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .screen.active { display: flex; animation: fadeIn .6s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  #screen-intro {
+    background: radial-gradient(ellipse at center, #1a2550 0%, #0A1128 70%);
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+  }
+  .stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  .portal {
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,180,216,0.3) 0%, rgba(114,9,183,0.2) 50%, transparent 70%);
+    border: 3px solid var(--cyan);
+    box-shadow: 0 0 60px var(--cyan), inset 0 0 40px var(--violet);
+    margin: 20px auto;
+    animation: portalPulse 3s infinite ease-in-out;
+    position: relative;
+  }
+  .portal::before, .portal::after {
+    content: '';
+    position: absolute;
+    inset: -15px;
+    border: 2px solid var(--cyan);
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: portalRing 3s infinite ease-in-out;
+  }
+  .portal::after { inset: -30px; animation-delay: 1.5s; }
+  @keyframes portalPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 0 60px var(--cyan), inset 0 0 40px var(--violet); }
+    50% { transform: scale(1.05); box-shadow: 0 0 100px var(--cyan), inset 0 0 60px var(--violet); }
+  }
+  @keyframes portalRing {
+    0%,100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.15); opacity: 0.1; }
+  }
+  .intro-title {
+    font-size: clamp(1.8em, 5vw, 3em);
+    background: linear-gradient(90deg, var(--cyan), var(--orange));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+  }
+  .intro-subtitle { color: var(--muted); font-size: 1em; margin-bottom: 20px; }
+  .navigator-text {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    padding: 20px 25px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 16px;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--text);
+    backdrop-filter: blur(10px);
+    position: relative;
+  }
+  .navigator-text::before {
+    content: '🧭 НАВИГАТОР';
+    position: absolute;
+    top: -12px; left: 20px;
+    background: var(--bg-deep);
+    padding: 2px 12px;
+    font-size: 0.75em;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    font-style: normal;
+    font-weight: 700;
+  }
+  .btn-enter {
+    background: linear-gradient(135deg, var(--orange), #ff8c42);
+    color: white;
+    padding: 16px 40px;
+    font-size: 1.1em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-radius: 50px;
+    box-shadow: 0 0 30px rgba(255,107,53,0.5);
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+  .btn-enter:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,107,53,0.8); }
+
+  .hyperspace {
+    position: fixed; inset: 0;
+    background: var(--bg-deep);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .hyperspace.active { display: flex; }
+  .hstar {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: white;
+    border-radius: 50%;
+    animation: hfly 1.5s linear forwards;
+  }
+  @keyframes hfly {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(3); opacity: 0; }
+  }
+
+  #screen-hub {
+    background: linear-gradient(180deg, #0A1128 0%, #1B2A4E 50%, #2d1b4e 100%);
+    position: relative;
+  }
+  .hub-top {
+    position: sticky; top: 0;
+    z-index: 100;
+    padding: 15px 20px;
+    background: rgba(10,17,40,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,180,216,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+  .hub-title { font-size: 1.1em; color: var(--cyan); letter-spacing: 1px; }
+  .progress-bar { display: flex; gap: 8px; align-items: center; }
+  .crystal-slot {
+    width: 32px; height: 32px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s;
+  }
+  .crystal-slot.filled { border-color: transparent; animation: crystalPop 0.6s ease; }
+  @keyframes crystalPop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .crystal { width: 20px; height: 24px; clip-path: polygon(50% 0, 100% 30%, 80% 100%, 20% 100%, 0 30%); }
+  .crystal.green { background: linear-gradient(180deg, #86efac, #22c55e); box-shadow: 0 0 10px #22c55e; }
+  .crystal.yellow { background: linear-gradient(180deg, #fde68a, #eab308); box-shadow: 0 0 10px #eab308; }
+  .crystal.red { background: linear-gradient(180deg, #fca5a5, #dc2626); box-shadow: 0 0 10px #dc2626; }
+
+  .hub-scene { flex: 1; position: relative; min-height: 500px; overflow: hidden; }
+  .parallax-layer { position: absolute; inset: 0; transition: transform 0.3s ease-out; }
+  .sky {
+    background: radial-gradient(ellipse at 30% 20%, #2d1b4e 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 30%, #1e3a5f 0%, transparent 50%),
+                linear-gradient(180deg, #0A1128 0%, #1B2A4E 100%);
+  }
+  .moon {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #f0e6d2, #a89880);
+    box-shadow: 0 0 40px rgba(240,230,210,0.3);
+  }
+  .moon.m1 { width: 80px; height: 80px; top: 10%; left: 15%; }
+  .moon.m2 { width: 50px; height: 50px; top: 20%; right: 20%; }
+
+  .location { position: absolute; cursor: pointer; transition: all 0.3s; z-index: 10; }
+  .location:hover { transform: scale(1.08); z-index: 20; }
+  .location.done { opacity: 0.5; cursor: default; }
+  .location.done:hover { transform: none; }
+  .loc-icon {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(0,180,216,0.15);
+    border: 2px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    box-shadow: 0 0 30px rgba(0,180,216,0.4);
+    animation: locGlow 2.5s infinite ease-in-out;
+    position: relative;
+  }
+  .location.done .loc-icon {
+    border-color: var(--green);
+    box-shadow: 0 0 30px rgba(74,222,128,0.4);
+    animation: none;
+  }
+  @keyframes locGlow {
+    0%,100% { box-shadow: 0 0 30px rgba(0,180,216,0.4); }
+    50% { box-shadow: 0 0 50px rgba(0,180,216,0.7); }
+  }
+  .loc-check {
+    position: absolute;
+    bottom: -5px; right: -5px;
+    width: 28px; height: 28px;
+    background: var(--green);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    border: 2px solid var(--bg-deep);
+  }
+  .location.done .loc-check { display: flex; }
+  .loc-label {
+    margin-top: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+  .loc-wanderer { top: 55%; left: 8%; }
+  .loc-commander { top: 35%; left: 45%; transform: translateX(-50%); }
+  .loc-keeper { top: 60%; right: 8%; }
+  .loc-teacher { bottom: 8%; left: 25%; }
+  .loc-player { bottom: 8%; right: 25%; }
+
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 15px);
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(10,17,40,0.95);
+    border: 1px solid var(--cyan);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.85em;
+    min-width: 200px;
+    max-width: 260px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    z-index: 50;
+  }
+  .location:hover .tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .tooltip-title { color: var(--orange); font-weight: 700; margin-bottom: 4px; }
+  .tooltip-desc { color: var(--muted); line-height: 1.4; }
+
+  .city-dome {
+    position: absolute;
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(180deg, rgba(0,180,216,0.3), rgba(114,9,183,0.2));
+    border: 1px solid rgba(0,180,216,0.4);
+    backdrop-filter: blur(2px);
+  }
+  .dome-main { width: 200px; height: 120px; top: 30%; left: 50%; transform: translateX(-50%); }
+  .dome-left { width: 100px; height: 60px; top: 40%; left: 20%; }
+  .dome-right { width: 120px; height: 70px; top: 45%; right: 18%; }
+  .ruins {
+    position: absolute;
+    bottom: 20%;
+    left: 5%;
+    width: 15%;
+    height: 30%;
+    background: linear-gradient(180deg, transparent 0%, rgba(34,197,94,0.2) 100%);
+    clip-path: polygon(20% 100%, 10% 60%, 30% 40%, 40% 70%, 60% 30%, 80% 50%, 90% 80%, 100% 100%);
+    opacity: 0.6;
+  }
+
+  #screen-scene { background: #000; }
+  .scene-art {
+    flex: 1;
+    position: relative;
+    min-height: 400px;
+    transition: filter 0.5s;
+    overflow: hidden;
+  }
+  .scene-art.dimmed { filter: brightness(0.4); }
+  .scene-illustration {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a3e, #2d1b4e, #1a0f2e);
+  }
+  .scene-illustration img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  .scene-text-panel {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(10,17,40,0.92) 25%);
+    backdrop-filter: blur(8px);
+    padding: 50px 30px 30px;
+    max-height: 55%;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  .scene-role-title {
+    font-size: clamp(1.2em, 3vw, 1.8em);
+    color: var(--orange);
+    margin-bottom: 6px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+  .scene-role-value {
+    color: var(--cyan);
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .scene-text {
+    font-size: 1.02em;
+    line-height: 1.7;
+    color: var(--text);
+    max-width: 780px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .scene-controls {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn {
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.95em;
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--orange), #ff8c42);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255,107,53,0.4);
+  }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,107,53,0.6); }
+  .btn-primary:disabled {
+    background: #3a3a4a;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+  .btn-hint {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: rgba(10,17,40,0.75);
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-size: 0.9em;
+    backdrop-filter: blur(10px);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+  }
+  .btn-hint:hover { background: rgba(0,180,216,0.2); transform: translateY(-2px); }
+  .btn-hint .qmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--cyan);
+    color: var(--bg-deep);
+    font-weight: 700;
+    font-size: 0.85em;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 140px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(248,113,113,0.95);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 0.9em;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s;
+    z-index: 30;
+    box-shadow: 0 4px 20px rgba(248,113,113,0.5);
+    white-space: nowrap;
+  }
+  .scroll-hint.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  #screen-scale {
+    background: rgba(10,17,40,0.97);
+    backdrop-filter: blur(10px);
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+  }
+  .scale-panel {
+    max-width: 600px;
+    width: 100%;
+    background: rgba(27,42,78,0.6);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(20px);
+  }
+  .scale-title { font-size: 1.5em; color: var(--cyan); text-align: center; margin-bottom: 5px; }
+  .scale-subtitle { text-align: center; color: var(--muted); margin-bottom: 25px; font-size: 0.9em; }
+  .scale-row { margin-bottom: 22px; }
+  .scale-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; }
+  .scale-label .emoji { font-size: 1.3em; }
+  .scale-question { color: var(--muted); font-size: 0.85em; font-style: italic; margin-bottom: 10px; }
+  .scale-options { display: flex; gap: 8px; justify-content: space-between; }
+  .scale-opt {
+    flex: 1;
+    padding: 10px 0;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.2s;
+  }
+  .scale-opt:hover { background: rgba(255,107,53,0.15); border-color: var(--orange); }
+  .scale-opt.selected {
+    background: linear-gradient(135deg, var(--orange), #ff8c42);
+    border-color: var(--orange);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255,107,53,0.5);
+  }
+  .scale-hints { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.8em; color: var(--muted); }
+  .scale-actions { display: flex; gap: 10px; margin-top: 25px; justify-content: center; flex-wrap: wrap; }
+
+  #screen-final {
+    background: linear-gradient(180deg, #0A1128 0%, #1B2A4E 50%, #2d1b4e 100%);
+    padding: 30px 20px;
+    overflow-y: auto;
+  }
+  .final-container { max-width: 900px; margin: 0 auto; }
+  .final-title {
+    font-size: 2em;
+    text-align: center;
+    background: linear-gradient(90deg, var(--cyan), var(--orange));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 30px;
+  }
+  .radar-wrap {
+    background: rgba(27,42,78,0.5);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+  }
+  .radar-svg { max-width: 400px; width: 100%; height: auto; }
+  .result-card {
+    background: rgba(27,42,78,0.5);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+  }
+  .result-main-role { text-align: center; margin-bottom: 20px; }
+  .result-main-role .big-emoji { font-size: 4em; display: block; margin-bottom: 10px; }
+  .result-main-role h2 { font-size: 1.8em; color: var(--orange); margin-bottom: 5px; }
+  .result-value { color: var(--cyan); font-size: 1.1em; font-weight: 600; }
+  .result-desc { line-height: 1.7; color: var(--text); margin-bottom: 15px; }
+  .professions-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 15px; }
+  .profession-item {
+    background: rgba(0,180,216,0.1);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9em;
+  }
+  .profession-item strong { color: var(--orange); display: block; margin-bottom: 3px; }
+  .profession-item span { color: var(--muted); font-size: 0.85em; }
+  .risk-card { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.4); }
+  .risk-card h3 { color: var(--red); margin-bottom: 10px; }
+  .growth-card { background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.4); }
+  .growth-card h3 { color: var(--yellow); margin-bottom: 10px; }
+  .final-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 25px; }
+
+  .toast {
+    position: fixed;
+    top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    background: rgba(10,17,40,0.95);
+    border: 1px solid var(--cyan);
+    color: var(--text);
+    padding: 14px 24px;
+    border-radius: 30px;
+    font-size: 0.95em;
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(.2,1.5,.4,1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 90%;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+  }
+  .modal.show { display: flex; animation: fadeIn 0.3s; }
+  .modal-box {
+    background: linear-gradient(180deg, #1B2A4E, #0A1128);
+    border: 1px solid var(--cyan);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+  }
+  .modal-box h3 { color: var(--cyan); margin-bottom: 15px; }
+  .modal-box p { color: var(--text); line-height: 1.6; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .progress-list { text-align: left; margin: 15px 0; }
+  .progress-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .progress-item .name { font-weight: 600; }
+  .progress-item .score { color: var(--orange); font-weight: 700; }
+
+  .prompt-box {
+    background: rgba(10,17,40,0.95);
+    border: 1px solid var(--orange);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    text-align: left;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .prompt-text {
+    color: #E8F1F8;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .btn-copy {
+    background: linear-gradient(135deg, var(--cyan), #0090b0);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: all 0.3s;
+  }
+  .btn-copy:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,180,216,0.5); }
+  .btn-copy.copied { background: linear-gradient(135deg, var(--green), #228B22); }
+
+  @media (max-width: 600px) {
+    .loc-icon { width: 70px; height: 70px; font-size: 35px; }
+    .loc-label { font-size: 0.8em; }
+    .hub-top { flex-wrap: wrap; }
+    .scene-role-title { font-size: 1.3em; }
+    .scale-panel { padding: 20px; }
+    .scale-opt { padding: 8px 0; font-size: 0.9em; }
+    .btn-hint { font-size: 0.8em; padding: 8px 12px; top: 12px; right: 12px; }
+    .scroll-hint { bottom: 110px; font-size: 0.8em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screen-intro">
+  <div class="stars" id="stars"></div>
+  <h1 class="intro-title">Добро пожаловать в 2147 год</h1>
+  <p class="intro-subtitle">Интерактивное путешествие «Резонанс: Энергия Смысла»</p>
+  <div class="portal"></div>
+  <div class="navigator-text">
+    В этом мире валютой является «Энергия Резонанса» — она вырабатывается только тогда, когда ты занимаешься своим делом. Тебе предстоит примерить на себя 5 ролей жителей этого мира и понять, какая из них наполняет тебя энергией, а какая — опустошает. Слушай не ум, а тело.
+  </div>
+  <button class="btn-enter" id="btn-enter">ВОЙТИ В МИР</button>
+</div>
+
+<div class="hyperspace" id="hyperspace"></div>
+
+<div class="screen" id="screen-hub">
+  <div class="hub-top">
+    <div class="hub-title">🌆 ГОРОД-ОАЗИС · 2147</div>
+    <div class="progress-bar" id="progress-bar"></div>
+    <button class="btn-secondary btn" id="btn-progress" style="padding:8px 14px; font-size:0.85em;">📊 Мой прогресс</button>
+  </div>
+  <div class="hub-scene" id="hub-scene">
+    <div class="parallax-layer sky" data-depth="0.02">
+      <div class="moon m1"></div>
+      <div class="moon m2"></div>
+    </div>
+    <div class="parallax-layer" data-depth="0.05">
+      <div class="ruins"></div>
+      <div class="city-dome dome-left"></div>
+      <div class="city-dome dome-main"></div>
+      <div class="city-dome dome-right"></div>
+    </div>
+    <div class="parallax-layer" data-depth="0.08" id="locations-layer"></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-scene">
+  <div class="scene-art" id="scene-art">
+    <div class="scene-illustration" id="scene-illustration"></div>
+    <button class="btn-hint" id="btn-hint">
+      <span class="qmark">?</span>
+      <span>К каким профессиям ведёт эта роль?</span>
+    </button>
+    <div class="scroll-hint" id="scroll-hint">📖 Дочитай текст до конца</div>
+    <div class="scene-text-panel" id="scene-text-panel">
+      <h2 class="scene-role-title" id="scene-role-title"></h2>
+      <div class="scene-role-value" id="scene-role-value"></div>
+      <p class="scene-text" id="scene-text"></p>
+      <div class="scene-controls">
+        <button class="btn btn-secondary" id="btn-back">← Назад к карте</button>
+        <button class="btn btn-primary" id="btn-rate" disabled>Оценить свой отклик</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-scale">
+  <div class="scale-panel">
+    <h2 class="scale-title">📊 Шкала Резонанса</h2>
+    <p class="scale-subtitle">Оцени свой внутренний отклик по 5 параметрам (1 — минимум, 5 — максимум)</p>
+    <div id="scale-rows"></div>
+    <div class="scale-actions">
+      <button class="btn btn-secondary" id="btn-scale-back">← Назад</button>
+      <button class="btn btn-primary" id="btn-save" disabled>Сохранить и продолжить</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-final">
+  <div class="final-container">
+    <h1 class="final-title">✨ Твой Профиль Резонанса ✨</h1>
+    <div class="radar-wrap">
+      <svg class="radar-svg" id="radar" viewBox="0 0 400 400"></svg>
+    </div>
+    <div class="result-card">
+      <div class="result-main-role">
+        <span class="big-emoji" id="final-emoji"></span>
+        <h2 id="final-role"></h2>
+        <div class="result-value">Базовая ценность: <span id="final-value"></span></div>
+      </div>
+      <p class="result-desc" id="final-desc"></p>
+      <h3 style="color:var(--cyan); margin-top:15px;">💼 Подходящие профессии:</h3>
+      <div class="professions-list" id="final-professions"></div>
+    </div>
+    <div class="result-card risk-card">
+      <h3>⚠️ Зона риска</h3>
+      <p id="final-risk"></p>
+    </div>
+    <div class="result-card growth-card" id="growth-card" style="display:none;">
+      <h3>🌱 Неожиданное открытие</h3>
+      <p id="final-growth"></p>
+    </div>
+    <div class="final-actions">
+      <button class="btn btn-primary" id="btn-download-pdf">📄 Скачать Профиль в PDF</button>
+      <button class="btn btn-secondary" id="btn-restart">🔄 Пройти заново</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="modal-return">
+  <div class="modal-box">
+    <h3>🧭 Рада видеть тебя снова!</h3>
+    <p id="modal-return-text">Ты остановился на роли...</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-continue">Продолжить</button>
+      <button class="btn btn-secondary" id="btn-restart-modal">Начать заново</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-progress">
+  <div class="modal-box">
+    <h3>📊 Мой прогресс</h3>
+    <div class="progress-list" id="progress-list"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('modal-progress').classList.remove('show')">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-hint">
+  <div class="modal-box">
+    <h3 id="hint-title">💡 Профессии этой роли</h3>
+    <div class="professions-list" id="hint-professions"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('modal-hint').classList.remove('show')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-prompt">
+  <div class="modal-box">
+    <h3>🎨 Промпт для генерации изображения</h3>
+    <p style="font-size:0.9em; color:var(--muted);">Скопируйте этот текст и вставьте в Midjourney, DALL-E 3 или Stable Diffusion:</p>
+    <div class="prompt-box">
+      <div class="prompt-text" id="prompt-text"></div>
+    </div>
+    <button class="btn-copy" id="btn-copy-prompt"> Скопировать промпт</button>
+    <div style="margin-top:15px; font-size:0.85em; color:var(--muted); line-height:1.5;">
+      <strong style="color:var(--cyan);">Инструкция:</strong><br>
+      1. Скопируйте промпт выше<br>
+      2. Вставьте в генератор изображений<br>
+      3. Сохраните результат как <strong style="color:var(--orange);" id="prompt-filename">role.jpg</strong><br>
+      4. Положите файл рядом с этим HTML
+    </div>
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="btn btn-secondary" onclick="document.getElementById('modal-prompt').classList.remove('show')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== ПРОМПТЫ ДЛЯ ГЕНЕРАЦИИ ИЗОБРАЖЕНИЙ =====
+const IMAGE_PROMPTS = {
+  commander: {
+    filename: 'commander.jpg',
+    prompt: `Cinematic wide shot, cyberpunk command center interior, two military commanders (Asian man and Caucasian woman) in dark graphite and deep blue uniforms with gold rank insignia and glowing blue accents. Man pointing at holographic 3D city map floating in center of room, woman analyzing data on transparent tablet. Multiple holographic screens with telemetry, radar displays, status panels. Cold blue and white monitor lighting, dramatic shadows. High-tech military control room, tension, 24/7 operations atmosphere. Photorealistic, Arcane art style, 16:9 aspect ratio, ultra detailed, 8k quality --ar 16:9 --style raw --v 6`
+  },
+  keeper: {
+    filename: 'keeper.jpg',
+    prompt: `Cinematic wide shot, underground stone archive with vaulted ceilings and arches. Two restorers (older Asian man with magnifying goggles and leather apron, young Asian woman in olive coat with tool belt) working at wooden table. Man restoring ancient artifact with micro-laser, woman cleaning manuscript with tweezers. Glowing blue crystals floating above table, ancient scrolls, books, brass gears on walls. Warm amber light from vintage desk lamps, dust particles in light beams. Medieval meets steampunk aesthetic, peaceful atmosphere. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
+  },
+  teacher: {
+    filename: 'teacher.jpg',
+    prompt: `Cinematic wide shot, sunny futuristic settlement with modular homes and solar panels. Two community helpers (Asian man in green utility vest with first aid kit and notepad, African woman in yellow dress with "Community Helper" badge) teaching newcomers. Woman holding holographic projection of green city, man gesturing warmly. Tomato plants, lettuce beds, lavender flowers in foreground. Three newcomers listening attentively in background. Bright sunlight, hopeful atmosphere, community spirit. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
+  },
+  player: {
+    filename: 'player.jpg',
+    prompt: `Cinematic wide shot, dynamic holographic training arena with dome ceiling and ring lighting. Two cyber athletes (Asian man in black motion-capture suit with blue neon lines mid-jump dodging energy projectile, Asian woman in gray athletic suit with visor throwing holographic fire disc). Floating neon rings, holographic crystals, energy discs. Digital screens showing "TRAINING MODE ACTIVE" and "RESPONSE TIME: 0.18s". Purple and blue neon lighting, motion blur, sparks. High-energy action scene. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
+  },
+  wanderer: {
+    filename: 'wanderer.jpg',
+    prompt: `Cinematic wide shot, ancient ruins overgrown with moss and vines under starry night sky with two moons and Milky Way. Two wanderers (Caucasian man in leather jacket holding holographic compass, woman in tattered hooded cloak with artifact bag and goggles) standing among crumbling columns. Green glowing runes on stones, misty atmosphere. Epic fantasy landscape, sense of freedom and mystery. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
+  }
+};
+
+const ROLES = {
+  wanderer: {
+    id: 'wanderer',
+    name: 'Странник',
+    emoji: '🌌',
+    value: 'Свобода',
+    tooltip: 'Исследует руины и дикую природу за пределами городов',
+    text: 'Я просыпаюсь на рассвете в своём походном убежище. Сегодня я исследую заброшенную лабораторию в 20 километрах отсюда. Весь день я иду через лес, делаю замеры, фотографирую артефакты. Никто не указывает мне, что делать. Я сам решаю, куда идти и когда вернуться. Вечером развожу костёр и записываю наблюдения в журнал. Иногда бывает одиноко, но я чувствую себя живым.',
+    professions: [
+      { name: 'Полевой исследователь', desc: 'Экспедиции, сбор данных в природе' },
+      { name: 'Эколог', desc: 'Изучение и защита экосистем' },
+      { name: 'Геолог', desc: 'Поиск ресурсов, изучение недр' },
+      { name: 'Археолог', desc: 'Раскопки и изучение прошлого' },
+      { name: 'Тревел-блогер', desc: 'Путешествия и истории о мире' },
+      { name: 'Экспедиционный фотограф', desc: 'Съёмка в удалённых местах' }
+    ],
+    description: 'Твой главный психологический «двигатель» — это свобода и автономия. Тебе важна возможность перемещаться, работать в одиночестве или в малых группах, исследовать новое. Тебе не подходит работа с жёстким графиком, привязкой к одному месту и высокой ответственностью за других людей. Ищи профессии, где ты сам определяешь свой ритм и маршрут.'
+  },
+  commander: {
+    id: 'commander',
+    name: 'Командир',
+    emoji: '🎖️',
+    value: 'Управление',
+    tooltip: 'Принимает решения в центре управления Городом-Оазисом',
+    text: 'Мой день начинается в 04:00 — ещё до того, как город проснётся. Я проверяю статус периметра, распределяю ресурсы между секторами, координирую патрули. Каждое моё решение влияет на тысячи жизней. Иногда я не сплю сутками, когда возникает кризис. Но когда я вижу, как город живёт и работает — я понимаю, что всё это не зря. Ответственность — это не бремя, это привилегия.',
+    professions: [
+      { name: 'Менеджер проектов', desc: 'Ведение команд к цели' },
+      { name: 'Руководитель операций', desc: 'Управление процессами' },
+      { name: 'Кризис-менеджер', desc: 'Спасение бизнесов и систем' },
+      { name: 'Логист', desc: 'Координация потоков' },
+      { name: 'Диспетчер центра управления', desc: 'Оперативное руководство' },
+      { name: 'Директор по безопасности', desc: 'Защита людей и ресурсов' }
+    ],
+    description: 'Твой главный психологический «двигатель» — это управление и влияние. Тебе важно видеть результат своих решений, чувствовать ответственность и значимость. Ты расцветаешь в кризисных ситуациях, когда нужно быстро принимать решения. Тебе не подходит монотонная работа в одиночестве без ясных целей. Ищи роли, где ты ведёшь за собой людей и видишь плоды своих решений.'
+  },
+  keeper: {
+    id: 'keeper',
+    name: 'Хранитель',
+    emoji: '📜',
+    value: 'Безопасность',
+    tooltip: 'Работает в подземном архиве с голограммами прошлого',
+    text: 'Здесь, в подземном архиве, время течёт иначе. Нет суеты, нет спешки — только тишина и шёпот древних страниц. Сегодня я реставрирую манускрипт трёхсотлетней давности. Каждый миллиметр требует внимания, каждое движение — точности. Я сохраняю знания, которые иначе были бы утеряны навсегда. Люди редко вспоминают о нас, но без нас будущее невозможно.',
+    professions: [
+      { name: 'Архивариус', desc: 'Хранение документов и данных' },
+      { name: 'Реставратор', desc: 'Восстановление артефактов' },
+      { name: 'Музейный работник', desc: 'Работа с экспонатами' },
+      { name: 'Библиотекарь', desc: 'Организация знаний' },
+      { name: 'Консерватор культурного наследия', desc: 'Сохранение истории' },
+      { name: 'Историк-исследователь', desc: 'Изучение прошлого' }
+    ],
+    description: 'Твой главный психологический «двигатель» — это безопасность и стабильность. Тебе важна предсказуемость, тишина, возможность сосредоточиться на глубокой работе. Ты ценишь смысл и сохранение важного. Тебе не подходит работа в хаосе, с постоянными дедлайнами и публичностью. Ищи профессии, где можно работать в спокойной обстановке с вещами, которые имеют значение.'
+  },
+  teacher: {
+    id: 'teacher',
+    name: 'Воспитатель',
+    emoji: '',
+    value: 'Помощь / Польза',
+    tooltip: 'Обучает новых жителей в поселении',
+    text: 'Сегодня в нашем поселении — десять новых семей. Они приехали из разных мест, у каждого — своя история и свои страхи. Я показываю им, как работают солнечные панели, где взять чистую воду, как устроен наш сад. Вижу, как расслабляются их лица, как появляется улыбка. Это и есть моя работа — помогать людям чувствовать себя дома. Когда сообщество растёт и крепнет, я знаю: я на своём месте.',
+    professions: [
+      { name: 'Социальный работник', desc: 'Поддержка уязвимых групп' },
+      { name: 'Учитель', desc: 'Обучение детей и взрослых' },
+      { name: 'Наставник', desc: 'Сопровождение в профессии' },
+      { name: 'Коуч', desc: 'Развитие людей' },
+      { name: 'Волонтёр-координатор', desc: 'Организация помощи' },
+      { name: 'Специалист по работе с сообществом', desc: 'Развитие локальных групп' },
+      { name: 'Педагог-организатор', desc: 'Воспитание и мероприятия' }
+    ],
+    description: 'Твой главный психологический «двигатель» — это помощь и польза для других. Ты получаешь энергию, когда видишь, как твои действия меняют чью-то жизнь к лучшему. Тебе важна связь с людьми, смысл в работе, возможность передавать знания. Тебе не подходит работа в изоляции, где результат не виден. Ищи роли, где ты напрямую влияешь на развитие и благополучие других.'
+  },
+  player: {
+    id: 'player',
+    name: 'Игрок',
+    emoji: '',
+    value: 'Драйв / Интерес',
+    tooltip: 'Создаёт виртуальные миры на полигоне голограмм',
+    text: 'Я просыпаюсь с мыслью: какой мир создам сегодня? Мой полигон — это пространство без границ. Здесь я проектирую виртуальные ландшафты, тестирую физику, соревнуюсь с другими игроками на скорость реакции. Адреналин зашкаливает, когда проходишь уровень на пределе возможностей. Я живу ради этих моментов чистого драйва. Каждый день — новый вызов, новая победа.',
+    professions: [
+      { name: 'Гейм-дизайнер', desc: 'Создание игр и миров' },
+      { name: 'Киберспортсмен', desc: 'Соревнования на высшем уровне' },
+      { name: 'VR/AR-разработчик', desc: 'Виртуальная реальность' },
+      { name: 'Тестировщик игр', desc: 'Поиск багов, оценка геймплея' },
+      { name: 'Сценарист интерактивных миров', desc: 'Создание историй' },
+      { name: 'Специалист по геймификации', desc: 'Игровые механики в жизни' }
+    ],
+    description: 'Твой главный психологический «двигатель» — это драйв и интерес. Тебе важна новизна, азарт, соревнование, яркие эмоции. Ты расцветаешь в динамичной среде, где каждый день не похож на предыдущий. Тебе не подходит монотонная, предсказуемая работа без вызовов. Ищи профессии, где можно творить, соревноваться и постоянно осваивать новое.'
+  }
+};
+
+const SCALES = [
+  { key: 'comfort', emoji: '🧘', label: 'Комфорт', question: 'Насколько мне спокойно / тревожно в этой роли?', low: '😰 Тревожно', high: '😌 Спокойно' },
+  { key: 'interest', emoji: '🔥', label: 'Интерес', question: 'Насколько мне увлекательно / скучно?', low: '😴 Скучно', high: '🤩 Увлекательно' },
+  { key: 'energy', emoji: '⚡', label: 'Энергия', question: 'Насколько я чувствую прилив сил / упадок?', low: '🪫 Упадок', high: '🔋 Прилив сил' },
+  { key: 'light', emoji: '✨', label: 'Светлость', question: 'Насколько мне "светло" / "тяжело" внутри?', low: ' Тяжело', high: '☀️ Светло' },
+  { key: 'body', emoji: '💓', label: 'Отклик тела', question: 'Насколько я чувствую приятный трепет / сжатие сердца?', low: '😖 Сжатие', high: '🥰 Трепет' }
+];
+
+const ROLE_ORDER = ['wanderer', 'commander', 'keeper', 'teacher', 'player'];
+
+let state = { scores: {}, currentRole: null, currentScaleValues: {} };
+const STORAGE_KEY = 'resonance_game_v1';
+
+function $(id) { return document.getElementById(id); }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showToast(msg, duration = 2500) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), duration);
+}
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+function loadState() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) { state = { ...state, ...JSON.parse(data) }; return true; }
+  } catch(e) {}
+  return false;
+}
+function clearState() {
+  state = { scores: {}, currentRole: null, currentScaleValues: {} };
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+}
+function avgScore(roleId) {
+  const s = state.scores[roleId];
+  if (!s) return 0;
+  const vals = Object.values(s);
+  return vals.reduce((a,b) => a+b, 0) / vals.length;
+}
+function crystalColor(avg) {
+  if (avg >= 4) return 'green';
+  if (avg >= 2.5) return 'yellow';
+  return 'red';
+}
+
+function initStars() {
+  const container = $('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.animationDuration = (2 + Math.random() * 3) + 's';
+    container.appendChild(s);
+  }
+}
+
+function hyperspaceTransition(callback) {
+  const hs = $('hyperspace');
+  hs.innerHTML = '';
+  hs.classList.add('active');
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div');
+    s.className = 'hstar';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 600 + Math.random() * 400;
+    s.style.left = '50%';
+    s.style.top = '50%';
+    s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    s.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    s.style.animationDelay = Math.random() * 0.5 + 's';
+    hs.appendChild(s);
+  }
+  setTimeout(() => {
+    hs.classList.remove('active');
+    if (callback) callback();
+  }, 1800);
+}
+
+function renderHub() {
+  const layer = $('locations-layer');
+  layer.innerHTML = '';
+  ROLE_ORDER.forEach(id => {
+    const r = ROLES[id];
+    const done = !!state.scores[id];
+    const div = document.createElement('div');
+    div.className = 'location' + (done ? ' done' : '');
+    div.classList.add('loc-' + id);
+    div.dataset.role = id;
+    div.innerHTML = `
+      <div class="loc-icon">${r.emoji}<div class="loc-check">✓</div></div>
+      <div class="loc-label">${r.name}</div>
+      <div class="tooltip">
+        <div class="tooltip-title">${r.emoji} ${r.name}</div>
+        <div class="tooltip-desc">${r.tooltip}</div>
+      </div>
+    `;
+    if (!done) {
+      div.addEventListener('click', () => openScene(id));
+    } else {
+      div.addEventListener('click', () => showToast('✨ Роль уже пройдена. Результат можно посмотреть в итоговом профиле.'));
+    }
+    layer.appendChild(div);
+  });
+  renderProgressBar();
+}
+
+function renderProgressBar() {
+  const bar = $('progress-bar');
+  bar.innerHTML = '';
+  ROLE_ORDER.forEach(id => {
+    const slot = document.createElement('div');
+    slot.className = 'crystal-slot';
+    slot.title = ROLES[id].name;
+    if (state.scores[id]) {
+      const avg = avgScore(id);
+      const color = crystalColor(avg);
+      slot.classList.add('filled');
+      slot.innerHTML = `<div class="crystal ${color}"></div>`;
+    }
+    bar.appendChild(slot);
+  });
+}
+
+function initParallax() {
+  const scene = $('hub-scene');
+  scene.addEventListener('mousemove', (e) => {
+    const rect = scene.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    scene.querySelectorAll('.parallax-layer').forEach(layer => {
+      const depth = parseFloat(layer.dataset.depth || 0);
+      layer.style.transform = `translate(${-x * depth * 100}px, ${-y * depth * 100}px)`;
+    });
+  });
+  scene.addEventListener('mouseleave', () => {
+    scene.querySelectorAll('.parallax-layer').forEach(layer => { layer.style.transform = ''; });
+  });
+}
+
+let scrollCheckInterval = null;
+
+function openScene(roleId) {
+  state.currentRole = roleId;
+  const r = ROLES[roleId];
+
+  // Пытаемся загрузить изображение из папки
+  const imgSrc = `${roleId}.jpg`;
+  const imgContainer = $('scene-illustration');
+  
+  const img = new Image();
+  img.onload = function() {
+    imgContainer.innerHTML = '';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block;';
+    img.alt = r.name;
+    imgContainer.appendChild(img);
+  };
+  img.onerror = function() {
+    // Изображение не найдено — показываем градиентный фон с подсказкой
+    imgContainer.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#1a1a3e,#2d1b4e,#1a0f2e);color:#8B9BB4;font-size:1.1em;text-align:center;padding:40px;">
+      <div>
+        <div style="font-size:2em;margin-bottom:15px;"></div>
+        <div>Изображение не найдено</div>
+        <div style="font-size:0.85em;margin-top:10px;color:#00B4D8;">Положите файл <strong>${roleId}.jpg</strong> рядом с HTML<br>или нажмите "?" чтобы сгенерировать</div>
+      </div>
+    </div>`;
+  };
+  img.src = imgSrc;
+
+  $('scene-role-title').textContent = r.emoji + ' ' + r.name.toUpperCase();
+  $('scene-role-value').textContent = `Базовая ценность: ${r.value}`;
+  $('scene-text').textContent = r.text;
+  $('scene-art').classList.remove('dimmed');
+  $('btn-rate').disabled = true;
+  $('scroll-hint').classList.remove('show');
+  $('scene-text-panel').scrollTop = 0;
+  showScreen('screen-scene');
+  if (scrollCheckInterval) clearInterval(scrollCheckInterval);
+  scrollCheckInterval = setInterval(checkScroll, 200);
+  setTimeout(checkScroll, 300);
+}
+
+function checkScroll() {
+  const panel = $('scene-text-panel');
+  const scrolledToBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 15;
+  const hasOverflow = panel.scrollHeight > panel.clientHeight + 5;
+  if (!hasOverflow || scrolledToBottom) {
+    $('btn-rate').disabled = false;
+    if (scrollCheckInterval) { clearInterval(scrollCheckInterval); scrollCheckInterval = null; }
+  }
+}
+
+function openScale() {
+  $('scene-art').classList.add('dimmed');
+  state.currentScaleValues = {};
+  const container = $('scale-rows');
+  container.innerHTML = '';
+  SCALES.forEach(scale => {
+    const row = document.createElement('div');
+    row.className = 'scale-row';
+    row.innerHTML = `
+      <div class="scale-label"><span class="emoji">${scale.emoji}</span> <strong>${scale.label}</strong></div>
+      <div class="scale-question">${scale.question}</div>
+      <div class="scale-options">
+        ${[1,2,3,4,5].map(n => `<button class="scale-opt" data-scale="${scale.key}" data-value="${n}">${n}</button>`).join('')}
+      </div>
+      <div class="scale-hints"><span>${scale.low}</span><span>${scale.high}</span></div>
+    `;
+    container.appendChild(row);
+  });
+  container.querySelectorAll('.scale-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.scale;
+      const val = parseInt(btn.dataset.value);
+      state.currentScaleValues[key] = val;
+      container.querySelectorAll(`.scale-opt[data-scale="${key}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateSaveButton();
+    });
+  });
+  $('btn-save').disabled = true;
+  showScreen('screen-scale');
+}
+
+function updateSaveButton() {
+  $('btn-save').disabled = Object.keys(state.currentScaleValues).length !== SCALES.length;
+}
+
+function saveScaleAndReturn() {
+  const roleId = state.currentRole;
+  state.scores[roleId] = { ...state.currentScaleValues };
+  saveState();
+  showToast(`✨ ${ROLES[roleId].name}: резонанс записан!`, 2000);
+  state.currentRole = null;
+  state.currentScaleValues = {};
+  if (scrollCheckInterval) { clearInterval(scrollCheckInterval); scrollCheckInterval = null; }
+  const allDone = ROLE_ORDER.every(id => state.scores[id]);
+  if (allDone) {
+    setTimeout(() => showFinal(), 800);
+  } else {
+    setTimeout(() => { renderHub(); showScreen('screen-hub'); }, 600);
+  }
+}
+
+function computeFinalRoles() {
+  let maxAvg = -1, minAvg = 10, mainRole = null, riskRole = null, growthRole = null;
+  ROLE_ORDER.forEach(id => {
+    const avg = avgScore(id);
+    if (avg > maxAvg) { maxAvg = avg; mainRole = id; }
+    if (avg < minAvg) { minAvg = avg; riskRole = id; }
+  });
+  ROLE_ORDER.forEach(id => {
+    const avg = avgScore(id);
+    if (avg >= 3 && avg < 4 && id !== mainRole && id !== riskRole) growthRole = id;
+  });
+  return { mainRole, riskRole, growthRole };
+}
+
+function showFinal() {
+  const { mainRole, riskRole, growthRole } = computeFinalRoles();
+  const mr = ROLES[mainRole];
+  $('final-emoji').textContent = mr.emoji;
+  $('final-role').textContent = 'Твоя главная роль — ' + mr.name.toUpperCase();
+  $('final-value').textContent = mr.value;
+  $('final-desc').textContent = mr.description;
+  const profContainer = $('final-professions');
+  profContainer.innerHTML = '';
+  mr.professions.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'profession-item';
+    div.innerHTML = `<strong>${p.name}</strong><span>${p.desc}</span>`;
+    profContainer.appendChild(div);
+  });
+  const rr = ROLES[riskRole];
+  $('final-risk').innerHTML = `Твоя зона риска — <strong>${rr.name}</strong>. ${getRiskText(riskRole)}`;
+  if (growthRole) {
+    const gr = ROLES[growthRole];
+    $('growth-card').style.display = 'block';
+    $('final-growth').innerHTML = `Интересно! Роль <strong>${gr.name}</strong> вызвала у тебя умеренный отклик. ${getGrowthText(growthRole)}`;
+  } else {
+    $('growth-card').style.display = 'none';
+  }
+  drawRadar();
+  showScreen('screen-final');
+}
+
+function getRiskText(roleId) {
+  const texts = {
+    wanderer: 'Работа в одиночестве без чёткой структуры и постоянное перемещение могут привести к выгоранию и ощущению потерянности. Учитывай это при выборе.',
+    commander: 'Работа с высокой ответственностью за других людей и жёстким графиком может привести к быстрому выгоранию. Учитывай это при выборе.',
+    keeper: 'Монотонная работа в тишине и изоляции без живого общения может вызвать ощущение бессмысленности. Учитывай это при выборе.',
+    teacher: 'Постоянная забота о других и эмоциональная вовлечённость могут привести к истощению. Учитывай это при выборе.',
+    player: 'Динамичная среда с постоянной новизной и соревнованием могут привести к перегрузке нервной системы. Учитывай это при выборе.'
+  };
+  return texts[roleId];
+}
+
+function getGrowthText(roleId) {
+  const texts = {
+    wanderer: 'Возможно, тебе нравится свобода, но в умеренных дозах — например, в формате проектной работы с возможностью путешествий? Исследуй это направление глубже.',
+    commander: 'Возможно, тебе интересно управлять, но не людьми, а процессами или проектами? Исследуй роли проджект-менеджера или аналитика.',
+    keeper: 'Возможно, тебе важна глубина и смысл, но не в полной изоляции? Посмотри в сторону исследовательской работы в команде.',
+    teacher: 'Возможно, тебе нравится помогать людям, но не в формате постоянной заботы, а в формате разовых консультаций или менторства? Исследуй это направление глубже.',
+    player: 'Возможно, тебе интересен драйв, но не в формате соревнований, а в формате творчества? Посмотри в сторону дизайна или разработки.'
+  };
+  return texts[roleId];
+}
+
+function generateRadarSVG() {
+  const cx = 200, cy = 200, maxR = 140;
+  const n = 5;
+  let html = '';
+  for (let level = 1; level <= 5; level++) {
+    const r = (level / 5) * maxR;
+    let points = '';
+    for (let i = 0; i < n; i++) {
+      const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+      points += `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)} `;
+    }
+    html += `<polygon points="${points}" fill="none" stroke="#cccccc" stroke-width="1"/>`;
+  }
+  for (let i = 0; i < n; i++) {
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+    const x = cx + maxR * Math.cos(angle);
+    const y = cy + maxR * Math.sin(angle);
+    html += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#cccccc" stroke-width="1"/>`;
+    const roleId = ROLE_ORDER[i];
+    const r = ROLES[roleId];
+    const lx = cx + (maxR + 28) * Math.cos(angle);
+    const ly = cy + (maxR + 28) * Math.sin(angle);
+    const avg = avgScore(roleId);
+    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="12" font-weight="600">${r.emoji} ${r.name}</text>`;
+    html += `<text x="${lx}" y="${ly + 15}" text-anchor="middle" fill="#FF6B35" font-size="11" font-weight="700">${avg.toFixed(2)}</text>`;
+  }
+  let polyPoints = '';
+  ROLE_ORDER.forEach((roleId, i) => {
+    const avg = avgScore(roleId);
+    const r = (avg / 5) * maxR;
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+    polyPoints += `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)} `;
+  });
+  html += `<polygon points="${polyPoints}" fill="rgba(255,107,53,0.35)" stroke="#FF6B35" stroke-width="2.5"/>`;
+  ROLE_ORDER.forEach((roleId, i) => {
+    const avg = avgScore(roleId);
+    const r = (avg / 5) * maxR;
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+    html += `<circle cx="${cx + r * Math.cos(angle)}" cy="${cy + r * Math.sin(angle)}" r="5" fill="#FF6B35" stroke="white" stroke-width="2"/>`;
+  });
+  return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="max-width:400px;width:100%;height:auto;">${html}</svg>`;
+}
+
+function drawRadar() {
+  const svg = $('radar');
+  const cx = 200, cy = 200, maxR = 140;
+  const n = 5;
+  let html = '';
+  for (let level = 1; level <= 5; level++) {
+    const r = (level / 5) * maxR;
+    let points = '';
+    for (let i = 0; i < n; i++) {
+      const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+      points += `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)} `;
+    }
+    html += `<polygon points="${points}" fill="none" stroke="rgba(0,180,216,0.2)" stroke-width="1"/>`;
+  }
+  for (let i = 0; i < n; i++) {
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+    const x = cx + maxR * Math.cos(angle);
+    const y = cy + maxR * Math.sin(angle);
+    html += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(0,180,216,0.3)" stroke-width="1"/>`;
+    const roleId = ROLE_ORDER[i];
+    const r = ROLES[roleId];
+    const lx = cx + (maxR + 25) * Math.cos(angle);
+    const ly = cy + (maxR + 25) * Math.sin(angle);
+    const avg = avgScore(roleId);
+    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#E8F1F8" font-size="13" font-weight="600">${r.emoji} ${r.name}</text>`;
+    html += `<text x="${lx}" y="${ly + 16}" text-anchor="middle" fill="#FF6B35" font-size="11" font-weight="700">${avg.toFixed(1)}</text>`;
+  }
+  let polyPoints = '';
+  ROLE_ORDER.forEach((roleId, i) => {
+    const avg = avgScore(roleId);
+    const r = (avg / 5) * maxR;
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+    polyPoints += `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)} `;
+  });
+  html += `<polygon points="${polyPoints}" fill="rgba(255,107,53,0.3)" stroke="#FF6B35" stroke-width="2.5"/>`;
+  ROLE_ORDER.forEach((roleId, i) => {
+    const avg = avgScore(roleId);
+    const r = (avg / 5) * maxR;
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / n);
+    html += `<circle cx="${cx + r * Math.cos(angle)}" cy="${cy + r * Math.sin(angle)}" r="5" fill="#FF6B35" stroke="white" stroke-width="2"/>`;
+  });
+  svg.innerHTML = html;
+}
+
+function downloadPDF() {
+  const { mainRole, riskRole, growthRole } = computeFinalRoles();
+  const mr = ROLES[mainRole];
+  const rr = ROLES[riskRole];
+  const radarSVG = generateRadarSVG();
+  const dateStr = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  const scoresTableRows = ROLE_ORDER.map(id => {
+    const r = ROLES[id];
+    const avg = avgScore(id);
+    const isMain = id === mainRole;
+    return `<tr${isMain ? ' style="background:#fff5ee;font-weight:600;"' : ''}>
+      <td>${r.emoji} ${r.name}${isMain ? ' ★' : ''}</td>
+      <td style="text-align:center;">${avg.toFixed(2)}</td>
+      <td>${r.value}</td>
+    </tr>`;
+  }).join('');
+  const professionsHTML = mr.professions.map(p =>
+    `<div class="profession"><strong>${p.name}</strong><span>${p.desc}</span></div>`
+  ).join('');
+  const growthHTML = growthRole ? `
+    <div class="growth">
+      <h3>🌱 Неожиданное открытие: ${ROLES[growthRole].name}</h3>
+      <p>${getGrowthText(growthRole)}</p>
+    </div>
+  ` : '';
+  const html = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Профиль Резонанса</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', 'Inter', Arial, sans-serif; background: white; color: #1a1a1a; padding: 30px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+  .no-print { position: fixed; top: 20px; right: 20px; background: #FF6B35; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 1em; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,53,0.4); z-index: 1000; }
+  .no-print:hover { background: #ff8c42; }
+  h1 { color: #FF6B35; text-align: center; font-size: 2em; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 0.95em; }
+  .role-card { border: 2px solid #FF6B35; border-radius: 12px; padding: 20px; margin: 20px 0; page-break-inside: avoid; }
+  .role-title { font-size: 1.6em; color: #FF6B35; text-align: center; margin-bottom: 5px; }
+  .role-emoji { font-size: 3em; text-align: center; display: block; margin-bottom: 10px; }
+  .value { text-align: center; color: #00B4D8; font-size: 1.15em; font-weight: 600; margin-bottom: 15px; }
+  .desc { line-height: 1.7; margin: 15px 0; text-align: justify; }
+  h2 { color: #00B4D8; margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; }
+  .professions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .profession { border: 1px solid #ddd; padding: 10px 12px; border-radius: 8px; background: #fafafa; }
+  .profession strong { color: #FF6B35; display: block; margin-bottom: 3px; font-size: 0.95em; }
+  .profession span { color: #666; font-size: 0.85em; }
+  .radar { text-align: center; margin: 20px 0; page-break-inside: avoid; }
+  table.scores { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
+  table.scores th, table.scores td { border: 1px solid #ddd; padding: 8px 12px; }
+  table.scores th { background: #f5f5f5; text-align: left; font-weight: 600; }
+  .risk { border: 2px solid #F87171; background: #fff5f5; padding: 15px 18px; border-radius: 10px; margin: 15px 0; page-break-inside: avoid; }
+  .risk h3 { color: #dc2626; margin-bottom: 8px; }
+  .growth { border: 2px solid #FACC15; background: #fffbeb; padding: 15px 18px; border-radius: 10px; margin: 15px 0; page-break-inside: avoid; }
+  .growth h3 { color: #ca8a04; margin-bottom: 8px; }
+  .footer { text-align: center; margin-top: 35px; color: #999; font-size: 0.85em; border-top: 1px solid #ddd; padding-top: 15px; }
+  @media print { .no-print { display: none !important; } body { padding: 0; } }
+</style>
+</head>
+<body>
+  <button class="no-print" onclick="window.print()">🖨️ Сохранить как PDF</button>
+  <h1>✨ Профиль Резонанса ✨</h1>
+  <p class="subtitle">Результаты интерактивного путешествия «Резонанс: Энергия Смысла» · ${dateStr}</p>
+  <div class="radar">${radarSVG}</div>
+  <table class="scores">
+    <thead><tr><th>Роль</th><th style="text-align:center;">Средний балл</th><th>Базовая ценность</th></tr></thead>
+    <tbody>${scoresTableRows}</tbody>
+  </table>
+  <div class="role-card">
+    <span class="role-emoji">${mr.emoji}</span>
+    <div class="role-title">Твоя главная роль — ${mr.name.toUpperCase()}</div>
+    <div class="value">Базовая ценность: ${mr.value}</div>
+    <p class="desc">${mr.description}</p>
+    <h2> Подходящие профессии:</h2>
+    <div class="professions">${professionsHTML}</div>
+  </div>
+  <div class="risk"><h3>⚠️ Зона риска: ${rr.name}</h3><p>${getRiskText(riskRole)}</p></div>
+  ${growthHTML}
+  <div class="footer"><p>Создано в интерактивном квесте «Резонанс: Энергия Смысла» · ${dateStr}</p></div>
+  <script>window.addEventListener('load', function() { setTimeout(function() { window.print(); }, 400); });<\/script>
+</body>
+</html>`;
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) { showToast('⚠️ Разрешите всплывающие окна для скачивания PDF', 3500); return; }
+  printWindow.document.write(html);
+  printWindow.document.close();
+  showToast(' Открываем окно сохранения PDF...', 2500);
+}
+
+function init() {
+  initStars();
+  initParallax();
+  $('btn-enter').addEventListener('click', () => {
+    hyperspaceTransition(() => { renderHub(); showScreen('screen-hub'); });
+  });
+  $('btn-back').addEventListener('click', () => {
+    if (scrollCheckInterval) { clearInterval(scrollCheckInterval); scrollCheckInterval = null; }
+    renderHub(); showScreen('screen-hub');
+  });
+  $('btn-rate').addEventListener('click', (e) => {
+    const panel = $('scene-text-panel');
+    const scrolledToBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 15;
+    const hasOverflow = panel.scrollHeight > panel.clientHeight + 5;
+    if (hasOverflow && !scrolledToBottom) {
+      const hint = $('scroll-hint');
+      hint.classList.add('show');
+      clearTimeout($('btn-rate')._hintT);
+      $('btn-rate')._hintT = setTimeout(() => hint.classList.remove('show'), 2500);
+      e.preventDefault();
+      return;
+    }
+    openScale();
+  });
+  $('scene-text-panel').addEventListener('scroll', () => {
+    const panel = $('scene-text-panel');
+    if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 15) {
+      $('btn-rate').disabled = false;
+      $('scroll-hint').classList.remove('show');
+    }
+  });
+  
+  $('btn-hint').addEventListener('click', () => {
+    const roleId = state.currentRole;
+    const promptData = IMAGE_PROMPTS[roleId];
+    if (promptData) {
+      $('prompt-text').textContent = promptData.prompt;
+      $('prompt-filename').textContent = promptData.filename;
+      $('btn-copy-prompt').textContent = ' Скопировать промпт';
+      $('btn-copy-prompt').classList.remove('copied');
+      $('modal-prompt').classList.add('show');
+    }
+  });
+  
+  $('btn-copy-prompt').addEventListener('click', () => {
+    const promptText = $('prompt-text').textContent;
+    navigator.clipboard.writeText(promptText).then(() => {
+      $('btn-copy-prompt').textContent = '✅ Скопировано!';
+      $('btn-copy-prompt').classList.add('copied');
+      showToast('📋 Промпт скопирован в буфер обмена', 2000);
+    }).catch(() => {
+      const textarea = document.createElement('textarea');
+      textarea.value = promptText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      $('btn-copy-prompt').textContent = '✅ Скопировано!';
+      $('btn-copy-prompt').classList.add('copied');
+      showToast('📋 Промпт скопирован в буфер обмена', 2000);
+    });
+  });
+
+  $('btn-scale-back').addEventListener('click', () => { $('scene-art').classList.remove('dimmed'); showScreen('screen-scene'); });
+  $('btn-save').addEventListener('click', saveScaleAndReturn);
+  $('btn-progress').addEventListener('click', () => {
+    const list = $('progress-list');
+    list.innerHTML = '';
+    let completed = 0;
+    ROLE_ORDER.forEach(id => {
+      const r = ROLES[id];
+      const div = document.createElement('div');
+      div.className = 'progress-item';
+      if (state.scores[id]) {
+        completed++;
+        div.innerHTML = `<span class="name">${r.emoji} ${r.name}</span><span class="score">${avgScore(id).toFixed(1)} / 5</span>`;
+      } else {
+        div.innerHTML = `<span class="name">${r.emoji} ${r.name}</span><span class="score" style="color:var(--muted);">не пройдено</span>`;
+      }
+      list.appendChild(div);
+    });
+    const header = document.createElement('div');
+    header.style.cssText = 'text-align:center; color:var(--muted); margin-bottom:10px; font-size:0.9em;';
+    header.textContent = `Пройдено ролей: ${completed} из 5`;
+    list.insertBefore(header, list.firstChild);
+    $('modal-progress').classList.add('show');
+  });
+  $('btn-download-pdf').addEventListener('click', downloadPDF);
+  $('btn-restart').addEventListener('click', () => { clearState(); showScreen('screen-intro'); });
+  $('btn-continue').addEventListener('click', () => { $('modal-return').classList.remove('show'); renderHub(); showScreen('screen-hub'); });
+  $('btn-restart-modal').addEventListener('click', () => { clearState(); $('modal-return').classList.remove('show'); showScreen('screen-intro'); });
+
+  const hasState = loadState();
+  if (hasState && Object.keys(state.scores).length > 0) {
+    const allDone = ROLE_ORDER.every(id => state.scores[id]);
+    if (allDone) { showFinal(); }
+    else {
+      const pending = ROLE_ORDER.find(id => !state.scores[id]);
+      $('modal-return-text').textContent = `Ты остановился на роли «${ROLES[pending].name}». Продолжим?`;
+      $('modal-return').classList.add('show');
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
