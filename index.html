@@ -392,35 +392,6 @@
   }
   .btn-secondary:hover { background: rgba(255,255,255,0.2); }
 
-  .btn-hint {
-    position: absolute;
-    top: 20px; right: 20px;
-    background: rgba(10,17,40,0.75);
-    color: var(--cyan);
-    border: 1px solid var(--cyan);
-    padding: 10px 18px;
-    border-radius: 25px;
-    font-size: 0.9em;
-    backdrop-filter: blur(10px);
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-  }
-  .btn-hint:hover { background: rgba(0,180,216,0.2); transform: translateY(-2px); }
-  .btn-hint .qmark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: var(--cyan);
-    color: var(--bg-deep);
-    font-weight: 700;
-    font-size: 0.85em;
-  }
-
   .scroll-hint {
     position: absolute;
     bottom: 140px;
@@ -594,36 +565,6 @@
   .progress-item .name { font-weight: 600; }
   .progress-item .score { color: var(--orange); font-weight: 700; }
 
-  .prompt-box {
-    background: rgba(10,17,40,0.95);
-    border: 1px solid var(--orange);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 15px 0;
-    text-align: left;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  .prompt-text {
-    color: #E8F1F8;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9em;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .btn-copy {
-    background: linear-gradient(135deg, var(--cyan), #0090b0);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: 600;
-    margin-top: 10px;
-    transition: all 0.3s;
-  }
-  .btn-copy:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,180,216,0.5); }
-  .btn-copy.copied { background: linear-gradient(135deg, var(--green), #228B22); }
-
   @media (max-width: 600px) {
     .loc-icon { width: 70px; height: 70px; font-size: 35px; }
     .loc-label { font-size: 0.8em; }
@@ -631,7 +572,6 @@
     .scene-role-title { font-size: 1.3em; }
     .scale-panel { padding: 20px; }
     .scale-opt { padding: 8px 0; font-size: 0.9em; }
-    .btn-hint { font-size: 0.8em; padding: 8px 12px; top: 12px; right: 12px; }
     .scroll-hint { bottom: 110px; font-size: 0.8em; }
   }
 </style>
@@ -675,10 +615,6 @@
 <div class="screen" id="screen-scene">
   <div class="scene-art" id="scene-art">
     <div class="scene-illustration" id="scene-illustration"></div>
-    <button class="btn-hint" id="btn-hint">
-      <span class="qmark">?</span>
-      <span>К каким профессиям ведёт эта роль?</span>
-    </button>
     <div class="scroll-hint" id="scroll-hint">📖 Дочитай текст до конца</div>
     <div class="scene-text-panel" id="scene-text-panel">
       <h2 class="scene-role-title" id="scene-role-title"></h2>
@@ -758,66 +694,12 @@
   </div>
 </div>
 
-<div class="modal" id="modal-hint">
-  <div class="modal-box">
-    <h3 id="hint-title">💡 Профессии этой роли</h3>
-    <div class="professions-list" id="hint-professions"></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="document.getElementById('modal-hint').classList.remove('show')">Закрыть</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="modal-prompt">
-  <div class="modal-box">
-    <h3>🎨 Промпт для генерации изображения</h3>
-    <p style="font-size:0.9em; color:var(--muted);">Скопируйте этот текст и вставьте в Midjourney, DALL-E 3 или Stable Diffusion:</p>
-    <div class="prompt-box">
-      <div class="prompt-text" id="prompt-text"></div>
-    </div>
-    <button class="btn-copy" id="btn-copy-prompt"> Скопировать промпт</button>
-    <div style="margin-top:15px; font-size:0.85em; color:var(--muted); line-height:1.5;">
-      <strong style="color:var(--cyan);">Инструкция:</strong><br>
-      1. Скопируйте промпт выше<br>
-      2. Вставьте в генератор изображений<br>
-      3. Сохраните результат как <strong style="color:var(--orange);" id="prompt-filename">role.jpg</strong><br>
-      4. Положите файл рядом с этим HTML
-    </div>
-    <div class="modal-actions" style="margin-top:20px;">
-      <button class="btn btn-secondary" onclick="document.getElementById('modal-prompt').classList.remove('show')">Закрыть</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const IMAGE_PROMPTS = {
-  commander: {
-    filename: 'commander.jpg',
-    prompt: `Cinematic wide shot, cyberpunk command center interior, two military commanders (Asian man and Caucasian woman) in dark graphite and deep blue uniforms with gold rank insignia and glowing blue accents. Man pointing at holographic 3D city map floating in center of room, woman analyzing data on transparent tablet. Multiple holographic screens with telemetry, radar displays, status panels. Cold blue and white monitor lighting, dramatic shadows. High-tech military control room, tension, 24/7 operations atmosphere. Photorealistic, Arcane art style, 16:9 aspect ratio, ultra detailed, 8k quality --ar 16:9 --style raw --v 6`
-  },
-  keeper: {
-    filename: 'keeper.jpg',
-    prompt: `Cinematic wide shot, underground stone archive with vaulted ceilings and arches. Two restorers (older Asian man with magnifying goggles and leather apron, young Asian woman in olive coat with tool belt) working at wooden table. Man restoring ancient artifact with micro-laser, woman cleaning manuscript with tweezers. Glowing blue crystals floating above table, ancient scrolls, books, brass gears on walls. Warm amber light from vintage desk lamps, dust particles in light beams. Medieval meets steampunk aesthetic, peaceful atmosphere. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
-  },
-  teacher: {
-    filename: 'teacher.jpg',
-    prompt: `Cinematic wide shot, sunny futuristic settlement with modular homes and solar panels. Two community helpers (Asian man in green utility vest with first aid kit and notepad, African woman in yellow dress with "Community Helper" badge) teaching newcomers. Woman holding holographic projection of green city, man gesturing warmly. Tomato plants, lettuce beds, lavender flowers in foreground. Three newcomers listening attentively in background. Bright sunlight, hopeful atmosphere, community spirit. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
-  },
-  player: {
-    filename: 'player.jpg',
-    prompt: `Cinematic wide shot, dynamic holographic training arena with dome ceiling and ring lighting. Two cyber athletes (Asian man in black motion-capture suit with blue neon lines mid-jump dodging energy projectile, Asian woman in gray athletic suit with visor throwing holographic fire disc). Floating neon rings, holographic crystals, energy discs. Digital screens showing "TRAINING MODE ACTIVE" and "RESPONSE TIME: 0.18s". Purple and blue neon lighting, motion blur, sparks. High-energy action scene. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
-  },
-  wanderer: {
-    filename: 'wanderer.jpg',
-    prompt: `Cinematic wide shot, ancient ruins overgrown with moss and vines under starry night sky with two moons and Milky Way. Two wanderers (Caucasian man in leather jacket holding holographic compass, woman in tattered hooded cloak with artifact bag and goggles) standing among crumbling columns. Green glowing runes on stones, misty atmosphere. Epic fantasy landscape, sense of freedom and mystery. Photorealistic, Arcane art style, 16:9 --ar 16:9 --style raw --v 6`
-  }
-};
-
 const ROLES = {
   wanderer: {
     id: 'wanderer',
     name: 'Странник',
-    emoji: '',
+    emoji: '🌌',
     value: 'Свобода',
     tooltip: 'Исследует руины и дикую природу за пределами городов',
     text: 'Я просыпаюсь на рассвете в своём походном убежище. Сегодня я исследую заброшенную лабораторию в 20 километрах отсюда. Весь день я иду через лес, делаю замеры, фотографирую артефакты. Никто не указывает мне, что делать. Я сам решаю, куда идти и когда вернуться. Вечером развожу костёр и записываю наблюдения в журнал. Иногда бывает одиноко, но я чувствую себя живым.',
@@ -903,9 +785,9 @@ const ROLES = {
 };
 
 const SCALES = [
-  { key: 'comfort', emoji: '🧘', label: 'Комфорт', question: 'Насколько мне спокойно / тревожно в этой роли?', low: '😰 Тревожно', high: '😌 Спокойно' },
-  { key: 'interest', emoji: '', label: 'Интерес', question: 'Насколько мне увлекательно / скучно?', low: '😴 Скучно', high: '🤩 Увлекательно' },
-  { key: 'energy', emoji: '⚡', label: 'Энергия', question: 'Насколько я чувствую прилив сил / упадок?', low: '🪫 Упадок', high: '🔋 Прилив сил' },
+  { key: 'comfort', emoji: '', label: 'Комфорт', question: 'Насколько мне спокойно / тревожно в этой роли?', low: '😰 Тревожно', high: '😌 Спокойно' },
+  { key: 'interest', emoji: '🔥', label: 'Интерес', question: 'Насколько мне увлекательно / скучно?', low: '😴 Скучно', high: ' Увлекательно' },
+  { key: 'energy', emoji: '⚡', label: 'Энергия', question: 'Насколько я чувствую прилив сил / упадок?', low: '🪫 Упадок', high: ' Прилив сил' },
   { key: 'light', emoji: '✨', label: 'Светлость', question: 'Насколько мне "светло" / "тяжело" внутри?', low: '🌑 Тяжело', high: '☀️ Светло' },
   { key: 'body', emoji: '💓', label: 'Отклик тела', question: 'Насколько я чувствую приятный трепет / сжатие сердца?', low: '😖 Сжатие', high: '🥰 Трепет' }
 ];
@@ -1072,7 +954,7 @@ function openScene(roleId) {
       <div>
         <div style="font-size:2em;margin-bottom:15px;">🎨</div>
         <div>Изображение не найдено</div>
-        <div style="font-size:0.85em;margin-top:10px;color:#00B4D8;">Положите файл <strong>${roleId}.jpg</strong> рядом с HTML<br>или нажмите "?" чтобы сгенерировать</div>
+        <div style="font-size:0.85em;margin-top:10px;color:#00B4D8;">Положите файл <strong>${roleId}.jpg</strong> рядом с HTML</div>
       </div>
     </div>`;
   };
@@ -1388,10 +1270,10 @@ function downloadPDF() {
 </body>
 </html>`;
   const printWindow = window.open('', '_blank');
-  if (!printWindow) { showToast('️ Разрешите всплывающие окна для скачивания PDF', 3500); return; }
+  if (!printWindow) { showToast('⚠️ Разрешите всплывающие окна для скачивания PDF', 3500); return; }
   printWindow.document.write(html);
   printWindow.document.close();
-  showToast(' Открываем окно сохранения PDF...', 2500);
+  showToast('📄 Открываем окно сохранения PDF...', 2500);
 }
 
 function init() {
@@ -1424,37 +1306,6 @@ function init() {
       $('btn-rate').disabled = false;
       $('scroll-hint').classList.remove('show');
     }
-  });
-  
-  $('btn-hint').addEventListener('click', () => {
-    const roleId = state.currentRole;
-    const promptData = IMAGE_PROMPTS[roleId];
-    if (promptData) {
-      $('prompt-text').textContent = promptData.prompt;
-      $('prompt-filename').textContent = promptData.filename;
-      $('btn-copy-prompt').textContent = '📋 Скопировать промпт';
-      $('btn-copy-prompt').classList.remove('copied');
-      $('modal-prompt').classList.add('show');
-    }
-  });
-  
-  $('btn-copy-prompt').addEventListener('click', () => {
-    const promptText = $('prompt-text').textContent;
-    navigator.clipboard.writeText(promptText).then(() => {
-      $('btn-copy-prompt').textContent = '✅ Скопировано!';
-      $('btn-copy-prompt').classList.add('copied');
-      showToast('📋 Промпт скопирован в буфер обмена', 2000);
-    }).catch(() => {
-      const textarea = document.createElement('textarea');
-      textarea.value = promptText;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      $('btn-copy-prompt').textContent = '✅ Скопировано!';
-      $('btn-copy-prompt').classList.add('copied');
-      showToast(' Промпт скопирован в буфер обмена', 2000);
-    });
   });
 
   $('btn-scale-back').addEventListener('click', () => { $('scene-art').classList.remove('dimmed'); showScreen('screen-scene'); });
