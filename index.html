@@ -694,7 +694,7 @@
 
 <div class="screen" id="screen-scale">
   <div class="scale-panel">
-    <h2 class="scale-title">📊 Шкала Резонанса</h2>
+    <h2 class="scale-title"> Шкала Резонанса</h2>
     <p class="scale-subtitle">Оцени свой внутренний отклик по 5 параметрам (1 — минимум, 5 — максимум)</p>
     <div id="scale-rows"></div>
     <div class="scale-actions">
@@ -717,7 +717,7 @@
         <div class="result-value">Базовая ценность: <span id="final-value"></span></div>
       </div>
       <p class="result-desc" id="final-desc"></p>
-      <h3 style="color:var(--cyan); margin-top:15px;">💼 Подходящие профессии:</h3>
+      <h3 style="color:var(--cyan); margin-top:15px;"> Подходящие профессии:</h3>
       <div class="professions-list" id="final-professions"></div>
     </div>
     <div class="result-card risk-card">
@@ -790,7 +790,6 @@
 </div>
 
 <script>
-// ===== ПРОМПТЫ ДЛЯ ГЕНЕРАЦИИ ИЗОБРАЖЕНИЙ =====
 const IMAGE_PROMPTS = {
   commander: {
     filename: 'commander.jpg',
@@ -818,7 +817,7 @@ const ROLES = {
   wanderer: {
     id: 'wanderer',
     name: 'Странник',
-    emoji: '🌌',
+    emoji: '',
     value: 'Свобода',
     tooltip: 'Исследует руины и дикую природу за пределами городов',
     text: 'Я просыпаюсь на рассвете в своём походном убежище. Сегодня я исследую заброшенную лабораторию в 20 километрах отсюда. Весь день я иду через лес, делаю замеры, фотографирую артефакты. Никто не указывает мне, что делать. Я сам решаю, куда идти и когда вернуться. Вечером развожу костёр и записываю наблюдения в журнал. Иногда бывает одиноко, но я чувствую себя живым.',
@@ -887,7 +886,7 @@ const ROLES = {
   player: {
     id: 'player',
     name: 'Игрок',
-    emoji: '🎮',
+    emoji: '🕹️',
     value: 'Драйв / Интерес',
     tooltip: 'Создаёт виртуальные миры на полигоне голограмм',
     text: 'Я просыпаюсь с мыслью: какой мир создам сегодня? Мой полигон — это пространство без границ. Здесь я проектирую виртуальные ландшафты, тестирую физику, соревнуюсь с другими игроками на скорость реакции. Адреналин зашкаливает, когда проходишь уровень на пределе возможностей. Я живу ради этих моментов чистого драйва. Каждый день — новый вызов, новая победа.',
@@ -905,9 +904,9 @@ const ROLES = {
 
 const SCALES = [
   { key: 'comfort', emoji: '🧘', label: 'Комфорт', question: 'Насколько мне спокойно / тревожно в этой роли?', low: '😰 Тревожно', high: '😌 Спокойно' },
-  { key: 'interest', emoji: '🔥', label: 'Интерес', question: 'Насколько мне увлекательно / скучно?', low: '😴 Скучно', high: '🤩 Увлекательно' },
+  { key: 'interest', emoji: '', label: 'Интерес', question: 'Насколько мне увлекательно / скучно?', low: '😴 Скучно', high: '🤩 Увлекательно' },
   { key: 'energy', emoji: '⚡', label: 'Энергия', question: 'Насколько я чувствую прилив сил / упадок?', low: '🪫 Упадок', high: '🔋 Прилив сил' },
-  { key: 'light', emoji: '✨', label: 'Светлость', question: 'Насколько мне "светло" / "тяжело" внутри?', low: ' Тяжело', high: '☀️ Светло' },
+  { key: 'light', emoji: '✨', label: 'Светлость', question: 'Насколько мне "светло" / "тяжело" внутри?', low: '🌑 Тяжело', high: '☀️ Светло' },
   { key: 'body', emoji: '💓', label: 'Отклик тела', question: 'Насколько я чувствую приятный трепет / сжатие сердца?', low: '😖 Сжатие', high: '🥰 Трепет' }
 ];
 
@@ -1058,7 +1057,6 @@ function openScene(roleId) {
   state.currentRole = roleId;
   const r = ROLES[roleId];
 
-  // Пытаемся загрузить изображение из папки
   const imgSrc = `${roleId}.jpg`;
   const imgContainer = $('scene-illustration');
   
@@ -1070,10 +1068,9 @@ function openScene(roleId) {
     imgContainer.appendChild(img);
   };
   img.onerror = function() {
-    // Изображение не найдено — показываем градиентный фон с подсказкой
     imgContainer.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#1a1a3e,#2d1b4e,#1a0f2e);color:#8B9BB4;font-size:1.1em;text-align:center;padding:40px;">
       <div>
-        <div style="font-size:2em;margin-bottom:15px;"></div>
+        <div style="font-size:2em;margin-bottom:15px;">🎨</div>
         <div>Изображение не найдено</div>
         <div style="font-size:0.85em;margin-top:10px;color:#00B4D8;">Положите файл <strong>${roleId}.jpg</strong> рядом с HTML<br>или нажмите "?" чтобы сгенерировать</div>
       </div>
@@ -1381,7 +1378,7 @@ function downloadPDF() {
     <div class="role-title">Твоя главная роль — ${mr.name.toUpperCase()}</div>
     <div class="value">Базовая ценность: ${mr.value}</div>
     <p class="desc">${mr.description}</p>
-    <h2> Подходящие профессии:</h2>
+    <h2>💼 Подходящие профессии:</h2>
     <div class="professions">${professionsHTML}</div>
   </div>
   <div class="risk"><h3>⚠️ Зона риска: ${rr.name}</h3><p>${getRiskText(riskRole)}</p></div>
@@ -1391,7 +1388,7 @@ function downloadPDF() {
 </body>
 </html>`;
   const printWindow = window.open('', '_blank');
-  if (!printWindow) { showToast('⚠️ Разрешите всплывающие окна для скачивания PDF', 3500); return; }
+  if (!printWindow) { showToast('️ Разрешите всплывающие окна для скачивания PDF', 3500); return; }
   printWindow.document.write(html);
   printWindow.document.close();
   showToast(' Открываем окно сохранения PDF...', 2500);
@@ -1435,7 +1432,7 @@ function init() {
     if (promptData) {
       $('prompt-text').textContent = promptData.prompt;
       $('prompt-filename').textContent = promptData.filename;
-      $('btn-copy-prompt').textContent = ' Скопировать промпт';
+      $('btn-copy-prompt').textContent = '📋 Скопировать промпт';
       $('btn-copy-prompt').classList.remove('copied');
       $('modal-prompt').classList.add('show');
     }
@@ -1456,7 +1453,7 @@ function init() {
       document.body.removeChild(textarea);
       $('btn-copy-prompt').textContent = '✅ Скопировано!';
       $('btn-copy-prompt').classList.add('copied');
-      showToast('📋 Промпт скопирован в буфер обмена', 2000);
+      showToast(' Промпт скопирован в буфер обмена', 2000);
     });
   });
 
